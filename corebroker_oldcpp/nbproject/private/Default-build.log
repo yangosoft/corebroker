@@ -1,0 +1,2 @@
+g++  -Wall -g  -I. -Iinc -I../common/jsoncpp -c -o obj/main.o src/main.cpp
+g++   -o test.bin obj/main.o -lpthread 

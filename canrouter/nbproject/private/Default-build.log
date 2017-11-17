@@ -1,0 +1,4 @@
+g++  -Wall -g  -I. -Iinc -I../common/jsoncpp -I../common/ -I../common/tcan/inc -I../common/tnodenet/inc/ -I../common/tmessage/inc/ -c -o obj/jsoncpp.o src/jsoncpp.cpp
+g++  -Wall -g  -I. -Iinc -I../common/jsoncpp -I../common/ -I../common/tcan/inc -I../common/tnodenet/inc/ -I../common/tmessage/inc/ -c -o obj/main.o src/main.cpp
+g++  -Wall -g  -I. -Iinc -I../common/jsoncpp -I../common/ -I../common/tcan/inc -I../common/tnodenet/inc/ -I../common/tmessage/inc/ -c -o obj/TConfigMng.o src/TConfigMng.cpp
+g++  -L ../common/file -L../common/tcan -L../common/tnodenet -o canrouter.bin obj/jsoncpp.o obj/main.o obj/TConfigMng.o -lpthread  -lfile -lcansocket -lnodesocket

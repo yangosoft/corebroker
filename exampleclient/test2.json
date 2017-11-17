@@ -1,0 +1,6 @@
+{
+ "message_name": "TEST_MESSAGE_1005",
+ "message_to": 1001,
+ "message_from": 1005,
+ "data": "My data!"
+}
