@@ -135,7 +135,7 @@ TMessage TMessage::fromRawData(const std::string& rawData, bool& parsedOk)
         {
             if ( item == "{" )
             {
-                std::cout << "Message without sentinels!" << std::cout;
+                std::cout << "Message without sentinels!" << std::endl;
                 ok = true;
                 insert = true;
             }

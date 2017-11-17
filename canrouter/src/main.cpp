@@ -16,20 +16,23 @@
 #include "TMessage.h"
 #include "msg/msgdef.h"
 
-#include "cpplog/cpplog.hpp"
+//#include "cpplog/cpplog.hpp"
 
 #include <list>
 #include <sstream>
 
 
 using namespace std;
-using namespace cpplog;
+//using namespace cpplog;
 
+#define LOG_INFO(X) std::cout 
+#define LOG_ERROR(X) std::cout
+#define OstreamLogger
 
 std::list<TMessage> lstIncomingMessages;
 pthread_mutex_t mutexIncomingMessages;
 TCan can;
-OstreamLogger log(std::cout);
+//OstreamLogger log(std::cout);
 /**
  * Given a TMessage it's sent through CAN
  * @param message

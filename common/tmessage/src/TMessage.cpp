@@ -15,6 +15,7 @@
 #include <iterator>
 #include <sstream>
 #include <vector>
+using namespace std;
 
 TMessage::TMessage(const std::string& messageName, uint32_t from, uint32_t to)
 {
@@ -135,7 +136,7 @@ TMessage TMessage::fromRawData(const std::string& rawData, bool& parsedOk)
         {
             if ( item == "{" )
             {
-                std::cout << "Message without sentinels!" << std::cout;
+                std::cout << "Message without sentinels!" << std::endl;
                 ok = true;
                 insert = true;
             }
