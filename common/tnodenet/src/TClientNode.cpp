@@ -1,6 +1,6 @@
 /* 
  * File:   TClientNode.cpp
- * Author: dzayas
+ * Author: daerobotics
  * 
  * Created on 21 de julio de 2014, 13:11
  */

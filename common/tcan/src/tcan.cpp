@@ -1,6 +1,6 @@
 /* 
  * File:   tcan.cpp
- * Author: dzayas
+ * Author: daerobotics
  * 
  * Created on 20 de agosto de 2014, 8:03
  */

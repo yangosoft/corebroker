@@ -1,6 +1,6 @@
 /* 
  * File:   TConfigMng.h
- * Author: dzayas
+ * Author: daerobotics
  *
  * Created on 8 de julio de 2014, 12:27
  */
