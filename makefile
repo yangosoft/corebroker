@@ -4,6 +4,7 @@ all:
 	$(MAKE) -C simpleserver
 	$(MAKE) -C exampleclient  
 	$(MAKE) -C canrouter
+	$(MAKE) -C corebroker
 	
 clean:
 	$(MAKE) clean -C common
@@ -11,3 +12,4 @@ clean:
 	$(MAKE) clean -C simpleserver
 	$(MAKE) clean -C exampleclient  
 	$(MAKE) clean -C canrouter
+	$(MAKE) clean -C corebroker
