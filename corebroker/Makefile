@@ -10,7 +10,7 @@ LIB_PATH :=
 
 CPP_FILES := $(wildcard src/*.cpp) main.cpp 
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
-
+OBJDIR  = obj
 
 
 $(TARGET): $(OBJ_FILES)
@@ -20,6 +20,7 @@ obj/main.o: main.cpp
 	$(CC) $(CC_FLAGS) -c -o $@ $<
 	
 obj/%.o: src/%.cpp
+	@mkdir -p $(OBJDIR)
 	$(CC) $(CC_FLAGS) -c -o $@ $<
 	
 
