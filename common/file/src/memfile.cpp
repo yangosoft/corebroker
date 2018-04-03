@@ -45,9 +45,9 @@ uint8_t* MemFile::readAsBuffer() const
         auto ec = std::error_code( errno, std::system_category() );
 		throw std::system_error( ec );
 	}
-	auto _data = reinterpret_cast<uint8_t*>(map);
+	auto data = reinterpret_cast<uint8_t*>(map);
 
 	close( fd );
-    return _data; 
+    return data; 
 }
 
