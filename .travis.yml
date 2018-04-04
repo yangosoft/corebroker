@@ -15,7 +15,7 @@ matrix:
          - CXX=g++-6
 install:
         - sudo update-alternatives --install /usr/bin/g++ /usr/bin/g++-6 90
-          sudo update-alternatives --install /usr/bin/gcc /usr/bin/gcc-6 90
+        - sudo update-alternatives --install /usr/bin/gcc /usr/bin/gcc-6 90
 
     # works on Precise and Trusty
     #- os: linux
