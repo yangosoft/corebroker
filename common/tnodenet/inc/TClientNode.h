@@ -10,6 +10,7 @@
 
 #include "IThread.h"
 #include "TSocketClient.h"
+#include "INode.h"
 
 #include <string>
 #include <stdint.h>
@@ -18,7 +19,7 @@
 
 class TClientNode : public IThread
 {
-    static const uint32_t THIS_NODE_ID = 1001;
+   constexpr static const uint32_t THIS_NODE_ID = 1001;
     
 public:
     
@@ -26,7 +27,7 @@ public:
     TClientNode(const std::string& host, uint32_t port, bool nonBlocking = false);
     
     
-    int32_t getStatus();
+    SC_STATUS getStatus() const;
     
     bool connect();
     
@@ -37,15 +38,15 @@ public:
     
     bool isBlocking();
     
-    uint32_t getNodeId();
+    uint32_t getNodeId() const;
     void setNodeId(uint32_t nodeId);
     
-    virtual void operator()();
-    virtual void start();
-    virtual void pause();
-    virtual void stop();
+    void operator()() override;
+    void start() override;
+    void pause() override;
+    void stop() override;
     
-    virtual ~TClientNode();
+    ~TClientNode() override = default;
 private:
 
     TSocketClient m_client;
@@ -57,15 +58,15 @@ private:
     
     int32_t m_fdSocket;
     pthread_t *m_thisThread;
-    int32_t m_threadStatus;
+    ITHREAD_STATUS m_threadStatus;
     
     std::list<TMessage*> m_lstMessages;
 
     uint32_t m_nodeId;
-    int32_t m_nodeStatus;
+    TNodeStatus m_nodeStatus;
 
     std::string m_nodeName;
-    int32_t m_internalStatus;
+    SC_STATUS m_internalStatus;
 
 
     pthread_mutex_t m_mutex;
@@ -79,7 +80,8 @@ private:
     
     static void *run_helper(void *context)
     {
-        return ((TClientNode *)context)->run();
+        TClientNode *n = static_cast<TClientNode *>(context);
+        return n->run();
     }
     
     

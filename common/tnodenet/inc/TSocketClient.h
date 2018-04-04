@@ -18,7 +18,7 @@
 #include <list>
 #include <stdint.h>
 
-enum SC_STATUS { SC_ERROR, SC_LISTENING, SC_PAUSE, SC_STOP };
+enum class SC_STATUS { SC_ERROR, SC_LISTENING, SC_PAUSE, SC_STOP };
 
 class TSocketClient : public IThread {
 public:
@@ -28,7 +28,7 @@ public:
 
     bool tryConnect();
 
-    int32_t getStatus();
+    SC_STATUS getStatus() const;
     
     
     bool writeData(const TMessage& m);
@@ -38,11 +38,11 @@ public:
     
     void giveReadSocketControl();
     
-    virtual void operator()();
-    virtual void start();
-    virtual void pause();
-    virtual void stop();
-    virtual ~TSocketClient();
+    void operator()() override;
+    void start() override;
+    void pause() override;
+    void stop() override;
+    ~TSocketClient() override = default;
 
 
 private:
@@ -52,14 +52,14 @@ private:
     
     int32_t m_fdSocket;
     pthread_t *m_thisThread;
-    int32_t m_threadStatus;
+    ITHREAD_STATUS m_threadStatus;
     
     std::list<TMessage*> m_lstMessages;
 
     uint32_t m_nodeId;
 
     std::string m_nodeName;
-    int32_t m_internalStatus;
+    SC_STATUS m_internalStatus;
 
 
     pthread_mutex_t m_mutex;
@@ -71,7 +71,8 @@ private:
     
     static void *run_helper(void *context)
     {
-        return ((TSocketClient *)context)->run();
+        TSocketClient *n = static_cast<TSocketClient *>(context);
+        return n->run();
     }
 
 };

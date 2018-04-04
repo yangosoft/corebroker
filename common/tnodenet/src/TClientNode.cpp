@@ -15,34 +15,27 @@
 
 #include <iostream>
 #include <sstream>
+#include <chrono>
+#include <thread>
 
 TClientNode::TClientNode(const std::string& host, uint32_t port, bool nonBlocking) : m_client(host, port)
 {
-    m_nodeStatus = NODE_DISCONNECTED;
+    m_nodeStatus = TNodeStatus::NODE_DISCONNECTED;
     m_nodeId = THIS_NODE_ID;
     m_nonBlocking = nonBlocking;
-    m_thisThread = NULL;
-    pthread_mutex_init(&m_mutex , NULL);
+    m_thisThread = nullptr;
+    pthread_mutex_init(&m_mutex , nullptr);
     if (true == m_nonBlocking)
     {
-        
-        
-        
-        m_threadStatus = TH_PAUSE;
-        int ret = pthread_create(m_thisThread, NULL, &TClientNode::run_helper, this);
+        m_threadStatus = ITHREAD_STATUS::TH_PAUSE;
+        int ret = pthread_create(m_thisThread, nullptr, &TClientNode::run_helper, this);
 
         if (ret < 0)
         {
-            std::cout << "could not create thread" << std::endl;
+            throw std::logic_error("could not create thread ");
 
         }
-
-        
-
-
     }
-
-
 }
 
 bool TClientNode::connect()
@@ -51,7 +44,7 @@ bool TClientNode::connect()
 
     if (true == ret)
     {
-        m_nodeStatus = NODE_CONNECTED;
+        m_nodeStatus = TNodeStatus::NODE_CONNECTED;
     }
 
     return ret;
@@ -62,9 +55,9 @@ bool TClientNode::login()
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     std::stringstream ss;
     //if connected
-    if (NODE_CONNECTED != m_nodeStatus)
+    if (TNodeStatus::NODE_CONNECTED != m_nodeStatus)
     {
-        return (NODE_ACCEPTED == m_nodeStatus);
+        return (TNodeStatus::NODE_ACCEPTED == m_nodeStatus);
     }
 
 
@@ -74,7 +67,9 @@ bool TClientNode::login()
     msgLogin += "\"message_from\": \"" + ss.str() + "\",\n";
     ss.str("");
 
-    ss << ((uint32_t) 1000);
+    uint32_t id = 1000;
+    
+    ss << id;
 
     msgLogin += "\"message_to\": \"" + ss.str() + "\"\n";
 
@@ -127,12 +122,12 @@ bool TClientNode::login()
         } else
         {
             std::cout << " * correct = " << value << std::endl;
-            ok = ok & (value == "1");
-            m_nodeStatus = NODE_ACCEPTED;
+            ok = ok && (value == "1");
+            m_nodeStatus = TNodeStatus::NODE_ACCEPTED;
             
             if ( true == m_nonBlocking )
             {
-                m_threadStatus = TH_START;
+                m_threadStatus = ITHREAD_STATUS::TH_START;
             }
 
         }
@@ -146,7 +141,7 @@ bool TClientNode::login()
     return ok;
 }
 
-uint32_t TClientNode::getNodeId()
+uint32_t TClientNode::getNodeId() const
 {
     return m_nodeId;
 }
@@ -161,11 +156,9 @@ bool TClientNode::sendMessage(const TMessage& msg)
 {
     bool ok = false;
 
-    if (NODE_ACCEPTED == m_nodeStatus)
+    if (TNodeStatus::NODE_ACCEPTED == m_nodeStatus)
     {
-
         ok = m_client.writeData(msg);
-
     }
     return ok;
 }
@@ -175,7 +168,7 @@ TMessage TClientNode::readMessage(bool &ok)
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     TMessage m("error", 0, 0);
     ok = false;
-    if (NODE_ACCEPTED == m_nodeStatus)
+    if (TNodeStatus::NODE_ACCEPTED == m_nodeStatus)
     {
         
         if( false == m_nonBlocking )
@@ -183,7 +176,7 @@ TMessage TClientNode::readMessage(bool &ok)
             m = m_client.readMessage(ok);
         }else
         {
-            if ( m_lstMessages.size() > 0 )
+            if ( ! m_lstMessages.empty() )
             {
                 
                 pthread_mutex_lock(&m_mutex);
@@ -192,9 +185,6 @@ TMessage TClientNode::readMessage(bool &ok)
                 m_lstMessages.pop_front();
                 pthread_mutex_unlock(&m_mutex);
             }
-            
-                
-            
         }
 
     }
@@ -206,16 +196,15 @@ void TClientNode::operator()()
     TMessage m("error", 0, 0);
     bool ok = false;
     
-    while (TH_STOP != m_threadStatus)
+    while (ITHREAD_STATUS::TH_STOP != m_threadStatus)
     {
-        while (TH_PAUSE == m_threadStatus)
+        while (ITHREAD_STATUS::TH_PAUSE == m_threadStatus)
         {
              //std::cout << __PRETTY_FUNCTION__ << " <-> PAUSED " << std::endl;
-
-            sleep(5);
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
 
-        if( NODE_ACCEPTED == m_nodeStatus )
+        if( TNodeStatus::NODE_ACCEPTED == m_nodeStatus )
         {
             m = m_client.readMessage(ok);
             if ( true == ok )
@@ -226,14 +215,11 @@ void TClientNode::operator()()
                 m_lstMessages.push_back(&m);
                 pthread_mutex_unlock(&m_mutex);
             }
-            
         }
 
-
         std::cout << __PRETTY_FUNCTION__ << std::endl;
-        sleep(1);
-
-
+        
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
 }
@@ -248,30 +234,28 @@ void* TClientNode::run()
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     (*this)();
     std::cout << __PRETTY_FUNCTION__ << ": end run! " << std::endl;
-    return 0;
+    return nullptr;
 }
 
 void TClientNode::pause()
 {
-    m_internalStatus = SC_PAUSE;
+    m_internalStatus = SC_STATUS::SC_PAUSE;
 }
 
 void TClientNode::start()
 {
-    m_internalStatus = SC_LISTENING;
+    m_internalStatus = SC_STATUS::SC_LISTENING;
 }
 
 void TClientNode::stop()
 {
-    m_internalStatus = SC_STOP;
+    m_internalStatus = SC_STATUS::SC_STOP;
 }
 
-int32_t TClientNode::getStatus()
+SC_STATUS TClientNode::getStatus() const
 {
     return m_internalStatus;
 }
 
-TClientNode::~TClientNode()
-{
-}
+
 

@@ -51,7 +51,7 @@ public:
     std::string toString() const;
 
 
-    virtual ~TMessage();
+    virtual ~TMessage() = default;
 
 private:
     uint32_t m_from;

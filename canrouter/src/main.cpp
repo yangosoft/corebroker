@@ -153,7 +153,7 @@ void *clientNodeReader(void *pClientNode)
 
     bool ok = false;
 
-    while (SC_STOP != client->getStatus())
+    while (SC_STATUS::SC_STOP != client->getStatus())
     {
         TMessage sMessage = client->readMessage(ok);
 

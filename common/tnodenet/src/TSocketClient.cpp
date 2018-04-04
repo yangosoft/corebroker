@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   TSocketClient.cpp
  * Author: yango
- * 
+ *
  * Created on 18 de julio de 2014, 23:30
  */
 
@@ -9,42 +9,37 @@
 #include <iostream>
 
 
-#include <sys/socket.h>
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <sys/types.h>
-#include <time.h> 
+#include <ctime>
 #include <pthread.h>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 
 
-#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <unistd.h>
-#include <errno.h>
-#include <arpa/inet.h> 
+#include <cerrno>
+#include <arpa/inet.h>
 
-TSocketClient::TSocketClient(const std::string& IP, uint16_t port)
+#include <chrono>
+#include <thread>
+
+TSocketClient::TSocketClient(const std::string& IP, uint16_t port): m_host(IP),m_port(port), m_threadStatus(ITHREAD_STATUS::TH_PAUSE)
 {
-
-    m_host = IP;
-    m_port = port;
-
-    m_threadStatus = SC_PAUSE;
-
-
-
-
+    
 }
 
 bool TSocketClient::tryConnect()
@@ -55,9 +50,9 @@ bool TSocketClient::tryConnect()
 
 
 
-    struct sockaddr_in serv_addr;
+    struct sockaddr_in serv_addr{};
 
-    //Puntero a esctructura hostent que nos permitirá 
+    //Puntero a esctructura hostent que nos permitirá
     //resolver un nombre de host a IP
     struct hostent *he;
 
@@ -67,26 +62,27 @@ bool TSocketClient::tryConnect()
         return false;
     }
 
-    memset(&serv_addr, '0', sizeof (serv_addr));
+    
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(m_port);
 
     // Debemos resolver el nombre del host a una IP
     he = gethostbyname(m_host.c_str());
-    if (he == NULL)
+    if (he == nullptr)
     {
         std::cout << "Error gethostbyname()" << std::endl;
         return false;
     }
 
-    serv_addr.sin_addr = *((struct in_addr *) he->h_addr);
+    
+    
+    serv_addr.sin_addr = *(reinterpret_cast<struct in_addr *>(he->h_addr));
 
 
-
-    if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof (serv_addr)) < 0)
+    
+    if (connect(sockfd, reinterpret_cast<struct sockaddr *>(&serv_addr), sizeof (serv_addr)) < 0)
     {
-
         std::cout << "Error connecting socket" << std::endl;
         return false;
     }
@@ -96,12 +92,11 @@ bool TSocketClient::tryConnect()
 
     m_thisThread = new pthread_t;
 
-    int ret = pthread_create(m_thisThread, NULL, &TSocketClient::run_helper, this);
+    int ret = pthread_create(m_thisThread, nullptr, &TSocketClient::run_helper, this);
 
     if (ret < 0)
     {
-        printf("could not create thread");
-
+        throw std::logic_error("could not create thread ");
     }
 
     return true;
@@ -132,7 +127,7 @@ TMessage TSocketClient::readMessage(bool &ok)
     ok = false;
     char buffer[256];
     bool messageFound = false;
-    TMessage m("", 0, 0); 
+    TMessage m("", 0, 0);
     std::string strBuffer;
     while (false == messageFound)
     {
@@ -143,7 +138,7 @@ TMessage TSocketClient::readMessage(bool &ok)
             //Client disconnected
 
             std::cout << "Client " << m_fdSocket << " disconnected" << std::endl;
-            m_threadStatus = SC_STOP;
+            m_threadStatus = ITHREAD_STATUS::TH_STOP;
             close(m_fdSocket);
             break;
 
@@ -172,22 +167,17 @@ void TSocketClient::operator()()
 {
 
 
-    while (SC_STOP != m_threadStatus)
+    while (ITHREAD_STATUS::TH_STOP != m_threadStatus)
     {
-        while (SC_PAUSE == m_threadStatus)
+        while (ITHREAD_STATUS::TH_PAUSE == m_threadStatus)
         {
-             //std::cout << __PRETTY_FUNCTION__ << " <-> PAUSED " << std::endl;
-
-            sleep(5);
+            //std::cout << __PRETTY_FUNCTION__ << " <-> PAUSED " << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
 
-
-
-
         std::cout << __PRETTY_FUNCTION__ << std::endl;
-        sleep(1);
-
-
+        
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
 }
@@ -197,30 +187,28 @@ void* TSocketClient::run()
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     (*this)();
     std::cout << __PRETTY_FUNCTION__ << ": end run! " << std::endl;
-    return 0;
+    return nullptr;
 }
 
 void TSocketClient::pause()
 {
-    m_internalStatus = SC_PAUSE;
+    m_internalStatus = SC_STATUS::SC_PAUSE;
 }
 
 void TSocketClient::start()
 {
-    m_internalStatus = SC_LISTENING;
+    m_internalStatus = SC_STATUS::SC_LISTENING;
 }
 
 void TSocketClient::stop()
 {
-    m_internalStatus = SC_STOP;
+    m_internalStatus = SC_STATUS::SC_STOP;
 }
 
-int32_t TSocketClient::getStatus()
+SC_STATUS TSocketClient::getStatus() const
 {
     return m_internalStatus;
 }
 
-TSocketClient::~TSocketClient()
-{
-}
+
 

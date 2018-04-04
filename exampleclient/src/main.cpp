@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
 
 
-        std::cout << "TRying to connect socket client" << std::endl;
+        std::cout << "Trying to connect socket client" << std::endl;
         TClientNode client("localhost", 5000);
         
         
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
             
         }
         
-        while (client.getStatus() != SC_STOP)
+        while (client.getStatus() != SC_STATUS::SC_STOP)
         {
             m = client.readMessage(ok);
             if( ok )

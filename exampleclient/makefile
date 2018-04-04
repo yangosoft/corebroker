@@ -2,7 +2,7 @@ TARGET = exampleclient.bin
 CROSS := arm-none-linux-gnueabi-
 CROSS_INCLUDE := -I system/
 CC = g++ 
-OPT = -Wall -g 
+OPT = -Wall -g -std=c++14
 INCLUDE = -I. -Iinc -I../common/jsoncpp -I../common/ -I../common/tnodenet/inc/ -I../common/tmessage/inc/
 CC_FLAGS = $(OPT) $(INCLUDE)
 

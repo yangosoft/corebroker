@@ -7,13 +7,5 @@
 
 #include "IThread.h"
 
-IThread::IThread() 
-{
-    
-}
 
-IThread::~IThread()
-{
-
-}
 

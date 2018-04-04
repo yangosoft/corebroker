@@ -20,25 +20,25 @@
 #include "TMessage.h"
 #include <pthread.h>
 
-enum SS_STATUS { SS_ERROR, SS_LISTENING, SS_PAUSE, SS_STOP };
+enum class SS_STATUS { SS_ERROR, SS_LISTENING, SS_PAUSE, SS_STOP };
 
 class TSocketServer : public IThread {
 public:
 
-    TSocketServer(uint32_t port, TClientNode* defaultGw  = NULL);
+    TSocketServer(uint32_t port, TClientNode* defaultGw  = nullptr);
    
     void routeMessage(const TMessage& msg);
     
-    uint32_t getNodeId();
+    uint32_t getNodeId() const;
     void setNodeId(uint32_t nodeId);
     
-    void operator()();
-    virtual void start();
-    virtual void pause();
-    virtual void stop();
-    virtual ~TSocketServer();
+    void operator()() override;
+    void start() override;
+    void pause() override;
+    void stop() override;
+    ~TSocketServer() override = default;
     
-    int32_t getStatus();
+    SS_STATUS getStatus() const;
     
 private:
     uint32_t m_port;
@@ -46,7 +46,7 @@ private:
     pthread_t *m_thisThread;
     std::list<int> m_lstThreads;
     std::list<TRemoteNode*> m_lstNodes;
-    int32_t m_internalStatus;
+    SS_STATUS m_internalStatus;
     
     pthread_mutex_t m_mutexRoute;
     
@@ -62,7 +62,8 @@ private:
     
     static void *run_helper(void *context)
     {
-        return ((TSocketServer *)context)->run();
+        TSocketServer *n = static_cast<TSocketServer *>(context);
+        return n->run();
     }
 };
 

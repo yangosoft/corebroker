@@ -6,7 +6,7 @@ CROSS_INCLUDE := -I system/
 CC = g++ 
 LD = g++
 LD_OPTS = -Wl,-soname=$(SONAME)
-OPT = -Wall -g -fPIC -shared
+OPT = -Wall -g -fPIC -shared -std=c++14
 INCLUDE = -I. -Iinc -I../jsoncpp -I../ -I../tmessage/inc
 CC_FLAGS = $(OPT) $(INCLUDE)
 

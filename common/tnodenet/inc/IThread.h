@@ -8,7 +8,7 @@
 #ifndef ITHREAD_H
 #define	ITHREAD_H
 
-enum ITHREAD_STATUS { TH_START, TH_STOP, TH_PAUSE  };
+enum class ITHREAD_STATUS { TH_START, TH_STOP, TH_PAUSE  };
 
 
 class IThread {

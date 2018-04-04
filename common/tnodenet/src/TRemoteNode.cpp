@@ -8,10 +8,14 @@
 #include "TRemoteNode.h"
 #include "msg/msgdef.h"
 
-#include <unistd.h>
+
 #include <iostream>
-#include <string.h>
+#include <unistd.h>
+#include <cstring>
 #include <sstream>
+
+#include <chrono>
+#include <thread>
 
 #include "TSocketServer.h"
 
@@ -20,19 +24,19 @@ TRemoteNode::TRemoteNode(int32_t fdSocket, TSocketServer& owner) :m_owner(owner)
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     m_fdSocket = fdSocket;
     m_nodeId = 0;
-    m_threadStatus = TH_PAUSE;
+    m_threadStatus = ITHREAD_STATUS::TH_PAUSE;
     m_thisThread = new pthread_t;
-    pthread_mutex_init(&m_mutexQueueMessages , NULL);
-    int ret = pthread_create(m_thisThread, NULL, &TRemoteNode::run_helper, this);
+    pthread_mutex_init(&m_mutexQueueMessages , nullptr);
+    int ret = pthread_create(m_thisThread, nullptr, &TRemoteNode::run_helper, this);
 
     if (ret < 0)
     {
-        std::cout << "Cannot create thread!" << std::endl;
-
+        throw std::logic_error("could not create thread ");
+        
     }
 }
 
-uint32_t TRemoteNode::getNodeId()
+uint32_t TRemoteNode::getNodeId() const
 {
     return m_nodeId;
 }
@@ -48,15 +52,11 @@ void TRemoteNode::EnqueueMsg(const TMessage& msg)
     pthread_mutex_lock(&m_mutexQueueMessages);
     std::cout <<  " * Locked! " << std::endl;
     
-    TMessage *m = new TMessage(msg);
+    auto m = new TMessage(msg);
     m_lstMessages.push_back(m);
     
     writeData(msg);
-    
-    
-    
-    
-    
+
     pthread_mutex_unlock(&m_mutexQueueMessages);
 }
 
@@ -64,14 +64,14 @@ void *TRemoteNode::run()
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     
-    m_nodeStatus = NODE_CONNECTED;
+    m_nodeStatus = TNodeStatus::NODE_CONNECTED;
     (*this)();
-   std::cout << __PRETTY_FUNCTION__ << " end run " << std::endl;
-    return 0;
+    std::cout << __PRETTY_FUNCTION__ << " end run " << std::endl;
+    return nullptr;
 }
 
 
-int32_t TRemoteNode::getNodeStatus()
+TNodeStatus TRemoteNode::getNodeStatus() const
 {
     return m_nodeStatus;
 }
@@ -82,7 +82,7 @@ bool TRemoteNode::checkLogin(const std::string& strMsg)
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     std::cout <<  " * " << strMsg << std::endl;
     bool ok;
-    TMessage m = TMessage::fromRawData(strMsg,ok);
+    auto m = TMessage::fromRawData(strMsg,ok);
     
     if( ok )
     {
@@ -96,10 +96,6 @@ bool TRemoteNode::checkLogin(const std::string& strMsg)
         {
             std::cout << "MESSAGE NOT LOGIN " << m.getName() << std::endl;
         }
-        
-        
-        
-        
         
         return ok;
     }
@@ -115,16 +111,16 @@ void TRemoteNode::operator()()
     bool ok = false;
     
     /* WAIT FOR LOGIN */
-    while(NODE_ACCEPTED != m_nodeStatus) 
+    while(TNodeStatus::NODE_ACCEPTED != m_nodeStatus) 
     {
         //std::cout << "Waiting login" << std::endl;
         ssize_t len = read(m_fdSocket,buffer, sizeof(buffer));
         if( len <= 0 )
         {
             //Client disconnected
-            m_nodeStatus = NODE_DISCONNECTED;
+            m_nodeStatus = TNodeStatus::NODE_DISCONNECTED;
             std::cout << "Client " << m_fdSocket << " disconnected" << std::endl;
-            m_threadStatus = TH_STOP;
+            m_threadStatus = ITHREAD_STATUS::TH_STOP;
             close(m_fdSocket);
             break;
             
@@ -140,7 +136,7 @@ void TRemoteNode::operator()()
             if ( true == checkLogin(strBuffer) )
             {
                 std::cout << "NODE IS ACCEPTED!" << std::endl;
-                m_nodeStatus = NODE_ACCEPTED;
+                m_nodeStatus = TNodeStatus::NODE_ACCEPTED;
             }
             strBuffer = "";
         }
@@ -151,20 +147,20 @@ void TRemoteNode::operator()()
     
     
     
-    if ( NODE_DISCONNECTED != m_nodeStatus )
+    if ( TNodeStatus::NODE_DISCONNECTED != m_nodeStatus )
     {
-        sendLoginAnswer( (NODE_ACCEPTED == m_nodeStatus)  );
+        sendLoginAnswer( (TNodeStatus::NODE_ACCEPTED == m_nodeStatus)  );
     }
     
     
-    while( TH_STOP != m_threadStatus )
+    while( ITHREAD_STATUS::TH_STOP != m_threadStatus )
     {
         std::cout << __PRETTY_FUNCTION__ << std::endl;
-        if( TH_PAUSE == m_threadStatus )
+        if( ITHREAD_STATUS::TH_PAUSE == m_threadStatus )
         {
             std::cout << " NODE IS PAUSED! " << std::endl;
-            sleep(10);
             
+            std::this_thread::sleep_for(std::chrono::seconds(10));
             continue;
         }
         std::cout << " * NODE DOES NOTHING " << std::endl;
@@ -173,9 +169,9 @@ void TRemoteNode::operator()()
         if( len == 0 )
         {
             //Client disconnected
-            m_nodeStatus = NODE_DISCONNECTED;
+            m_nodeStatus = TNodeStatus::NODE_DISCONNECTED;
             std::cout << "Client " << m_fdSocket << " disconnected" << std::endl;
-            m_threadStatus = TH_STOP;
+            m_threadStatus = ITHREAD_STATUS::TH_STOP;
             close(m_fdSocket);
             break;
             
@@ -221,12 +217,12 @@ void TRemoteNode::operator()()
             strBuffer = "";
         }
         
-        if( m_lstMessages.size() > 0 )
+        if( ! m_lstMessages.empty() )
         {
             pthread_mutex_lock(&m_mutexQueueMessages);
             TMessage *m = m_lstMessages.front();
             m_lstMessages.pop_front();
-            if (NULL != m)
+            if (nullptr != m)
             {
                 std::cout << "MESSAGE FROM OUTSIDE: " << m->getName()  << " from " << m->getFrom() << std::endl;
             }
@@ -308,20 +304,18 @@ bool TRemoteNode::writeData(const TMessage& m)
 
 void TRemoteNode::pause()
 {
-    m_threadStatus = TH_PAUSE;
+    m_threadStatus = ITHREAD_STATUS::TH_PAUSE;
 }
 
 void TRemoteNode::start()
 {
- m_threadStatus = TH_START;
+    m_threadStatus = ITHREAD_STATUS::TH_START;
 }
 
 void TRemoteNode::stop()
 {
-    m_threadStatus = TH_STOP;
+    m_threadStatus = ITHREAD_STATUS::TH_STOP;
 }
 
-TRemoteNode::~TRemoteNode()
-{
-}
+
 

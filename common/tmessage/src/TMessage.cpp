@@ -11,7 +11,7 @@
 
 
 #include <iostream>
-#include <ostream>
+#include <iterator>
 #include <iterator>
 #include <sstream>
 #include <vector>
@@ -26,40 +26,7 @@ TMessage::TMessage(const std::string& messageName, uint32_t from, uint32_t to)
 
 }
 
-/*TMessage::TMessage(TMessage&& orig)
-{
-    m_from = orig.m_from;
-    m_to   = orig.m_to;
-    m_name = orig.m_name;
-    m_parseCorrect = orig.m_parseCorrect;
-    m_rawData = orig.m_rawData;
-    m_jsonReader = orig.m_jsonReader;
-    m_jsonRep = orig.m_jsonRep;
-}
 
-TMessage& TMessage::operator= (const TMessage& orig)
-{
-    m_from = orig.m_from;
-    m_to   = orig.m_to;
-    m_name = orig.m_name;
-    m_parseCorrect = orig.m_parseCorrect;
-    m_rawData = orig.m_rawData;
-    m_jsonReader = orig.m_jsonReader;
-    m_jsonRep = orig.m_jsonRep;
-    return *this;
-}
-
-TMessage& TMessage::operator= (TMessage&& orig)
-{
-    m_from = orig.m_from;
-    m_to   = orig.m_to;
-    m_name = orig.m_name;
-    m_parseCorrect = orig.m_parseCorrect;
-    m_rawData = orig.m_rawData;
-    m_jsonReader = orig.m_jsonReader;
-    m_jsonRep = orig.m_jsonRep;
-    return *this;
-}*/
 
 void TMessage::setFrom(uint32_t from)
 {
@@ -82,10 +49,6 @@ TMessage TMessage::fromFile(const std::string& path, bool& parsedOk)
     
     if( false == TFile::fileExists(path) )
     {
-    
-     
-     
-     
      return m;
     }
     
@@ -107,7 +70,6 @@ TMessage TMessage::fromFile(const std::string& path, bool& parsedOk)
     parsedOk = ok;
     
     return m;
-    
 }
 
 TMessage TMessage::fromRawData(const std::string& rawData, bool& parsedOk)
@@ -127,7 +89,7 @@ TMessage TMessage::fromRawData(const std::string& rawData, bool& parsedOk)
 
     bool insert = false;
     bool ok = false;
-    std::string data = "";
+    std::string data;
 
     bool firstLine = true;
     while (std::getline(ss, item, '\n'))
@@ -156,7 +118,6 @@ TMessage TMessage::fromRawData(const std::string& rawData, bool& parsedOk)
         if (M_SENTINEL_END == item)
         {
             std::cout << " FOUND SENITEL END" << std::endl;
-            ok = ok & true;
             break;
         }
 
@@ -171,7 +132,7 @@ TMessage TMessage::fromRawData(const std::string& rawData, bool& parsedOk)
     std::cout << " PRE PARSED \n" << data << std::endl;
     TMessage m("error", 0, 0);
     m.setRawData(data);
-    ok = ok & m.parseData();
+    ok = ok && m.parseData();
     parsedOk = ok;
 
     std::cout << " * FROM " << m.getFrom() << std::endl;
@@ -235,19 +196,12 @@ bool TMessage::parseData()
         if ( 0 == m_to )
         {
             std::cout << " ERROR PARSING DESTINATION. Using atoi" << std::endl;
-            m_to = atoi (m_jsonRep.get("message_to", defaultVal).asString().c_str() );
+            m_to = std::stoi(m_jsonRep.get("message_to", defaultVal).asString());
+            
             std::cout << " DEstination " << m_to << std::endl;
             
         }
-
-        //m_to = m_jsonRep.get("message_to", defaultVal).asUInt();
-
-
-
     }
-
-
-
     return result;
 }
 
@@ -264,11 +218,8 @@ uint32_t TMessage::getDestination() const
 bool TMessage::readValue(const std::string& key, std::string& value)
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
-    
 
     Json::Value defaultVal;
-    
-
     std::cout << m_jsonRep.get(key, defaultVal).asString() << std::endl;
 
     value = m_jsonRep.get(key, defaultVal).asString();
@@ -283,8 +234,6 @@ bool TMessage::readValue(const std::string& key, uint32_t& value)
     
 
     Json::Value defaultVal;
-    
-
     std::cout << m_jsonRep.get(key, defaultVal).asUInt() << std::endl;
 
     value = m_jsonRep.get(key, defaultVal).asUInt();
@@ -296,28 +245,14 @@ bool TMessage::readValue(const std::string& key, uint32_t& value)
 bool TMessage::writeValue(const std::string& key, uint32_t value)
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
-    
-
-    
-    
-
     m_jsonRep[key] = value;
-
-    
     return true;
 }
 
 bool TMessage::writeValue(const std::string& key, std::string& value)
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
-    
-
-   
-    
-
     m_jsonRep[key] = value;
-
-    
     return true;
 }
 
@@ -347,12 +282,6 @@ std::string TMessage::toString() const
     out = out + M_SENTINEL_END;
 
     return out;
-
-
-
-
 }
 
-TMessage::~TMessage()
-{
-}
+

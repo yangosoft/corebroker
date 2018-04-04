@@ -8,7 +8,7 @@
 #ifndef TREMOTENODE_H
 #define	TREMOTENODE_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "IThread.h"
 #include "TMessage.h"
 #include "INode.h"
@@ -26,12 +26,12 @@ class TRemoteNode : public IThread {
 public:
     TRemoteNode(int32_t fdSocket, TSocketServer& owner);
     
-    int32_t getNodeStatus();
+    TNodeStatus getNodeStatus() const;
     
     void EnqueueMsg(const TMessage& msg);
 
 
-    uint32_t getNodeId();
+    uint32_t getNodeId() const;
     void setNodeId(uint32_t nodeId);
     
     
@@ -41,16 +41,16 @@ public:
     ssize_t writeData(const char *data, uint32_t size);
     
     
-    void operator()();
-    virtual void start();
-    virtual void pause();
-    virtual void stop();
-    virtual ~TRemoteNode();
+    void operator()() override;
+    void start() override;
+    void pause() override;
+    void stop() override;
+    ~TRemoteNode() override = default;
 private:
     
     int32_t m_fdSocket;
     pthread_t *m_thisThread;
-    int32_t m_threadStatus;
+    ITHREAD_STATUS m_threadStatus;
     
     pthread_mutex_t m_mutexQueueMessages;
     
@@ -73,7 +73,8 @@ private:
     
     static void *run_helper(void *context)
     {
-        return ((TRemoteNode *)context)->run();
+        TRemoteNode *n = static_cast<TRemoteNode *>(context);
+        return n->run();
     }
 
 };

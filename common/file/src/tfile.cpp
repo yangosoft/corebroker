@@ -1,9 +1,10 @@
 #include "tfile.h"
 
-#include <sys/stat.h>
-#include <iostream>
+
 #include <fstream>
+#include <iostream>
 #include <vector>
+#include <sys/stat.h>
 
 TFile::TFile(const std::string& filename)
 {
@@ -12,7 +13,7 @@ TFile::TFile(const std::string& filename)
 
 bool TFile::fileExists(const std::string& file)
 {
-    struct stat buf;
+    struct stat buf{};
     return (stat(file.c_str(), &buf) == 0);
 }
 

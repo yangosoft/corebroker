@@ -3,7 +3,7 @@ TARGET = canrouter.bin
 CROSS := arm-none-linux-gnueabi-
 CROSS_INCLUDE := -I system/
 CC = g++ 
-OPT = -Wall -g 
+OPT = -Wall -g -std=c++14
 INCLUDE = -I. -Iinc -I../common/jsoncpp -I../common/ -I../common/tcan/inc -I../common/tnodenet/inc/ -I../common/tmessage/inc/ -I../external -I../common/tconfigmng/inc
 CC_FLAGS = $(OPT) $(INCLUDE) -DCPPLOG_FILTER_LEVEL=$(LOG_LEVEL) -DVERSION_STRING=$(VERSION_STRING) -DMODULE_NAME=$(MODULE_NAME)
 

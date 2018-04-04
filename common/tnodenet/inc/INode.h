@@ -8,16 +8,21 @@
 #ifndef INODE_H
 #define	INODE_H
 
+#include <cstdint>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+    
 
-enum TNodeStatus { 
+enum class TNodeStatus: int32_t { 
     NODE_CONNECTED,
     NODE_ACCEPTED,
     NODE_REJECTED,
     NODE_DISCONNECTED
 };
+
 
 
 #ifdef	__cplusplus
