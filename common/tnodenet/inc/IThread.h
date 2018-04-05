@@ -14,13 +14,11 @@ enum class ITHREAD_STATUS { TH_START, TH_STOP, TH_PAUSE  };
 class IThread {
 public:
  
-  
-    IThread();
     virtual void operator()() = 0;
     virtual void start() = 0;
     virtual void pause() = 0;
     virtual void stop()  = 0;
-    virtual ~IThread()   = 0;
+    virtual ~IThread()   = default;
 
 private:
 
