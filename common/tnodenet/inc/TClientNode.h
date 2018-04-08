@@ -13,8 +13,8 @@
 #include "INode.h"
 
 #include <string>
-#include <stdint.h>
-
+#include <cstdint>
+#include <mutex>
 
 
 class TClientNode : public IThread
