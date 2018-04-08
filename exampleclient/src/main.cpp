@@ -1,5 +1,5 @@
 #include <iostream>
-#include <pthread.h>
+#include <mutex>
 #include <unistd.h>
 
 #include "TConfigMng.h"
@@ -16,12 +16,8 @@ int main(int argc, char** argv)
     TConfigMng configMng("config.json");
 
 
-    pthread_mutex_t m_mutex;
-    pthread_mutex_init(&m_mutex, NULL);
-
-
-    pthread_mutex_lock(&m_mutex);
-    pthread_mutex_unlock(&m_mutex);
+    std::mutex m_mutex;
+    
 
 
 

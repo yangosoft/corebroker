@@ -19,6 +19,7 @@
 #include "TClientNode.h"
 #include "TMessage.h"
 #include <pthread.h>
+#include <mutex>
 
 enum class SS_STATUS { SS_ERROR, SS_LISTENING, SS_PAUSE, SS_STOP };
 
@@ -48,7 +49,7 @@ private:
     std::list<TRemoteNode*> m_lstNodes;
     SS_STATUS m_internalStatus;
     
-    pthread_mutex_t m_mutexRoute;
+    std::mutex m_mutexRoute;
     
     
     TClientNode* m_defaultGw;

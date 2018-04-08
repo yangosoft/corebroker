@@ -19,7 +19,7 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
 $(TARGET): $(OBJ_FILES)
 	$(LD) $(LIB_PATH) $(OPT)  $(LD_OPTS)  -o $(TARGET) $^ $(LD_FLAGS)
-	@ln -s $(TARGET) $(SONAME)
+	@ln -sf $(TARGET) $(SONAME)
 
 
 obj/%.o: src/%.cpp

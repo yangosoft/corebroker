@@ -69,7 +69,7 @@ private:
     SC_STATUS m_internalStatus;
 
 
-    pthread_mutex_t m_mutex;
+    std::mutex m_mutex;
     
     
     

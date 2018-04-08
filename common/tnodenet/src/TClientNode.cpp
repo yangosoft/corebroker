@@ -24,7 +24,7 @@ TClientNode::TClientNode(const std::string& host, uint32_t port, bool nonBlockin
     m_nodeId = THIS_NODE_ID;
     m_nonBlocking = nonBlocking;
     m_thisThread = nullptr;
-    pthread_mutex_init(&m_mutex , nullptr);
+    
     if (true == m_nonBlocking)
     {
         m_threadStatus = ITHREAD_STATUS::TH_PAUSE;
@@ -178,12 +178,10 @@ TMessage TClientNode::readMessage(bool &ok)
         {
             if ( ! m_lstMessages.empty() )
             {
-                
-                pthread_mutex_lock(&m_mutex);
+                std::lock_guard<std::mutex> lock(m_mutex);
                 ok = true;
                 m = *(m_lstMessages.front());
                 m_lstMessages.pop_front();
-                pthread_mutex_unlock(&m_mutex);
             }
         }
 
@@ -211,9 +209,10 @@ void TClientNode::operator()()
             {
                 std::cout << "Added new message to queue!" << std::endl;
                 //Lock queue
-                pthread_mutex_lock(&m_mutex);
+                
+                std::lock_guard<std::mutex> lock(m_mutex);
                 m_lstMessages.push_back(&m);
-                pthread_mutex_unlock(&m_mutex);
+                
             }
         }
 

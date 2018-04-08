@@ -84,7 +84,7 @@ TSocketServer::TSocketServer(uint32_t port, TClientNode* defaultGw): m_port(port
 
 
     m_thisThread = new pthread_t;
-    pthread_mutex_init(&m_mutexRoute , nullptr);
+    
     int ret = pthread_create( m_thisThread , nullptr ,  &TSocketServer::run_helper ,  this);
 
     if( ret < 0)
@@ -219,7 +219,8 @@ void TSocketServer::operator ()()
 void TSocketServer::routeMessage(const TMessage& msg)
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
-    pthread_mutex_lock (&m_mutexRoute);
+    std::lock_guard<std::mutex> lock(m_mutexRoute);
+    
 
     if( msg.getDestination() == m_nodeId )
     {
@@ -266,7 +267,7 @@ void TSocketServer::routeMessage(const TMessage& msg)
     //For each node in node list
     //  if nodeId == message.destination
     //       node->enqueue
-    pthread_mutex_unlock (&m_mutexRoute);
+  
 }
 
 
