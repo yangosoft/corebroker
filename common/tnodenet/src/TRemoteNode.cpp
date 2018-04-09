@@ -238,7 +238,7 @@ bool TRemoteNode::sendLoginAnswer(bool accepted)
     
     if( false == ok )
     {
-        std::logic_error err("Cannot parse message " << m.toString());
+        std::logic_error err("Cannot parse message " + m.toString());
         throw err;
     }
     
@@ -246,7 +246,7 @@ bool TRemoteNode::sendLoginAnswer(bool accepted)
     ok = writeData(m);
     if( false == ok )
     {
-        std::logic_error err("Cannot send message " << m.toString() );
+        std::logic_error err("Cannot send message " + m.toString() );
         throw err;
     }
     
