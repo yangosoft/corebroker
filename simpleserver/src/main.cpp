@@ -24,9 +24,8 @@ int main(int argc, char** argv)
 
     while (server.getStatus() != SS_STATUS::SS_ERROR)
     {
-            //std::cout << "DONE" << std::endl;
-            sleep(1);
-            
+        //std::cout << "DONE" << std::endl;
+        sleep(1);
     }
 
 

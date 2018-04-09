@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <list>
 #include <string>
-
+#include <mutex>
 
 static const uint32_t SECONDS_KEEPALIVE = 30;
 
@@ -52,7 +52,7 @@ private:
     pthread_t *m_thisThread;
     ITHREAD_STATUS m_threadStatus;
     
-    pthread_mutex_t m_mutexQueueMessages;
+    std::mutex m_mutexQueueMessages;
     
     std::list<TMessage*> m_lstMessages;
 
@@ -62,7 +62,7 @@ private:
 
     TSocketServer& m_owner;
 
-    pthread_mutex_t m_mutex;
+    std::mutex m_mutex;
     
     void *run( );
     

@@ -35,9 +35,6 @@ void *new_connection(void *p)
     
     int fd_client_sck = *(static_cast<int*>(p));
 
-
-
-
     read(fd_client_sck, data_buffer, 1024);
     
 

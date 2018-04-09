@@ -209,10 +209,8 @@ void TClientNode::operator()()
             {
                 std::cout << "Added new message to queue!" << std::endl;
                 //Lock queue
-                
                 std::lock_guard<std::mutex> lock(m_mutex);
                 m_lstMessages.push_back(&m);
-                
             }
         }
 
