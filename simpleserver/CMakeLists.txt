@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 
 project(LibFile VERSION ${CorebrokerCommonLibs_VERSION_MAJOR}.${CorebrokerCommonLibs_VERSION_MINOR} LANGUAGES CXX)
 
-set( LibFileName "file" CACHE STRING "Lib filename")
-
-
+set( LibFileName "file")
 
 include (GNUInstallDirs)
 

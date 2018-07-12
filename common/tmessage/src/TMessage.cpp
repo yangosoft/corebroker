@@ -15,7 +15,7 @@
 #include <iterator>
 #include <sstream>
 #include <vector>
-using namespace std;
+
 
 TMessage::TMessage(const std::string& messageName, uint32_t from, uint32_t to)
 {
@@ -23,7 +23,6 @@ TMessage::TMessage(const std::string& messageName, uint32_t from, uint32_t to)
     m_to = to;
     m_parseCorrect = false;
     m_name = messageName;
-
 }
 
 

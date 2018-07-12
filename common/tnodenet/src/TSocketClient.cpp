@@ -37,9 +37,13 @@
 #include <chrono>
 #include <thread>
 
-TSocketClient::TSocketClient(const std::string& IP, uint16_t port): m_host(IP),m_port(port), m_threadStatus(ITHREAD_STATUS::TH_PAUSE)
+TSocketClient::TSocketClient(const std::string& IP, uint16_t port): 
+        m_host(IP),
+        m_port(port), 
+        m_initialized(false),
+        m_thisThread(&TSocketClient::run, this),
+        m_threadStatus(ITHREAD_STATUS::TH_PAUSE)
 {
-    
 }
 
 bool TSocketClient::tryConnect()
@@ -75,11 +79,8 @@ bool TSocketClient::tryConnect()
         return false;
     }
 
-    
-    
+   
     serv_addr.sin_addr = *(reinterpret_cast<struct in_addr *>(he->h_addr));
-
-
     
     if (connect(sockfd, reinterpret_cast<struct sockaddr *>(&serv_addr), sizeof (serv_addr)) < 0)
     {
@@ -87,24 +88,14 @@ bool TSocketClient::tryConnect()
         return false;
     }
 
-
     m_fdSocket = sockfd;
-
-    m_thisThread = new pthread_t;
-
-    int ret = pthread_create(m_thisThread, nullptr, &TSocketClient::run_helper, this);
-
-    if (ret < 0)
-    {
-        throw std::logic_error("could not create thread ");
-    }
+    m_initialized = true;
 
     return true;
 }
 
 ssize_t TSocketClient::writeData(const char *data, uint32_t size)
 {
-
     //PAUSE m_thread
     ssize_t n = write(m_fdSocket, data, size);
 
@@ -166,6 +157,10 @@ TMessage TSocketClient::readMessage(bool &ok)
 void TSocketClient::operator()()
 {
 
+    while(!m_initialized)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
     while (ITHREAD_STATUS::TH_STOP != m_threadStatus)
     {
