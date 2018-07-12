@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 
 project(ExampleClient VERSION 1.0 LANGUAGES CXX)
 
-set( ExampleClientName "simpleserver")
+set( ExampleClientName "exampleclient")
 
 include (GNUInstallDirs)
 
