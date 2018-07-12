@@ -8,15 +8,14 @@
 #ifndef TSOCKETCLIENT_H
 #define	TSOCKETCLIENT_H
 
+#include <cstdint>
+#include <list>
+#include <mutex>
+#include <string>
+#include <thread>
+
 #include "IThread.h"
 #include "TMessage.h"
-
-#include <pthread.h>
-
-
-#include <string>
-#include <list>
-#include <stdint.h>
 
 enum class SC_STATUS { SC_ERROR, SC_LISTENING, SC_PAUSE, SC_STOP };
 
@@ -51,7 +50,9 @@ private:
     uint16_t m_port;
     
     int32_t m_fdSocket;
-    pthread_t *m_thisThread;
+    
+    bool m_initialized;
+    std::thread m_thisThread;
     ITHREAD_STATUS m_threadStatus;
     
     std::list<TMessage*> m_lstMessages;
@@ -62,7 +63,9 @@ private:
     SC_STATUS m_internalStatus;
 
 
-    pthread_mutex_t m_mutex;
+
+    
+    
     
     void *run( );
     

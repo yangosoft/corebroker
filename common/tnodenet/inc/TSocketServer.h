@@ -10,16 +10,18 @@
 
 
 
-#include <stdint.h>
+#include <cstdint>
 #include <list>
+#include <mutex>
+#include <thread>
 
 #include "IThread.h"
-#include "TRemoteNode.h"
-#include "TSocketClient.h"
 #include "TClientNode.h"
 #include "TMessage.h"
-#include <pthread.h>
-#include <mutex>
+#include "TRemoteNode.h"
+#include "TSocketClient.h"
+
+
 
 enum class SS_STATUS { SS_ERROR, SS_LISTENING, SS_PAUSE, SS_STOP };
 
@@ -44,10 +46,12 @@ public:
 private:
     uint32_t m_port;
     uint32_t m_nodeId;
-    pthread_t *m_thisThread;
+    bool m_initialized;
+    SS_STATUS m_internalStatus;
+    std::thread m_thisThread;
     std::list<int> m_lstThreads;
     std::list<TRemoteNode*> m_lstNodes;
-    SS_STATUS m_internalStatus;
+    
     
     std::mutex m_mutexRoute;
     

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 
 project(LibNodeSocket VERSION ${CorebrokerCommonLibs_VERSION_MAJOR}.${CorebrokerCommonLibs_VERSION_MINOR} LANGUAGES CXX)
 
-set( LibNodeSocketName "nodesocket")
+set( LibNodeSocketName "nodesocket" CACHE STRING "Lib nodesocketname")
 
 include (GNUInstallDirs)
 
@@ -34,7 +34,7 @@ message("Public headers " ${PUBLIC_HEADER_FILES})
 
 add_library( ${LibNodeSocketName} SHARED ${SRC_FILES}   )
 
-
+target_link_libraries(${LibNodeSocketName} pthread)
 
 target_include_directories(${LibNodeSocketName} PRIVATE ${nodemessage_INCLUDE_DIRS})
 target_include_directories(${LibNodeSocketName} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../jsoncpp/")

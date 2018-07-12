@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 
 project(LibNodeMessage VERSION ${CorebrokerCommonLibs_VERSION_MAJOR}.${CorebrokerCommonLibs_VERSION_MINOR} LANGUAGES CXX)
 
-set( LibNodeMessageName "nodemessage")
+set( LibNodeMessageName "nodemessage" CACHE STRING "Lib nodemessagename")
 
 include (GNUInstallDirs)
 

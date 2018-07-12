@@ -34,14 +34,11 @@ void *new_connection(void *p)
 
     
     int fd_client_sck = *(static_cast<int*>(p));
-
     read(fd_client_sck, data_buffer, 1024);
     
-
     memset(data_buffer, '0', sizeof(data_buffer));
 
     data_buffer[0] = 0xF3; // Dato arbritario a enviar
-
 
     write(fd_client_sck, data_buffer, 1);
 
@@ -56,7 +53,13 @@ void *new_connection(void *p)
 
 
 
-TSocketServer::TSocketServer(uint32_t port, TClientNode* defaultGw): m_port(port),m_nodeId(NODE_ID),m_internalStatus(SS_STATUS::SS_PAUSE), m_defaultGw(defaultGw)
+TSocketServer::TSocketServer(uint32_t port, TClientNode* defaultGw): 
+        m_port(port),
+        m_nodeId(NODE_ID),
+        m_initialized(false),
+        m_internalStatus(SS_STATUS::SS_PAUSE), 
+        m_thisThread(&TSocketServer::run, this),
+        m_defaultGw(defaultGw)
 {
     
 
@@ -79,16 +82,7 @@ TSocketServer::TSocketServer(uint32_t port, TClientNode* defaultGw): m_port(port
         }
     }
 
-
-    m_thisThread = new pthread_t;
-    
-    int ret = pthread_create( m_thisThread , nullptr ,  &TSocketServer::run_helper ,  this);
-
-    if( ret < 0)
-    {
-        throw std::logic_error("could not create thread ");
-    }
-
+    m_initialized = true;
 }
 
 
@@ -130,12 +124,17 @@ void TSocketServer::stop()
 
 void TSocketServer::operator ()()
 {
+    while(!m_initialized)
+    {
+         std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     while(SS_STATUS::SS_LISTENING != m_internalStatus)
     {
         std::cout << " WAITING FOR LISTENING" << std::endl;
         
-        std::this_thread::sleep_for(std::chrono::seconds(100));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     int fd_sck 	 	= 0;
@@ -224,12 +223,9 @@ void TSocketServer::routeMessage(const TMessage& msg)
         std::cout << " Message for me " << std::endl;
     } else
     {
-
-
         bool found = false;
         for( auto n :  m_lstNodes )
         {
-
             std::cout << " MSG " << msg.getDestination() << " vs node " << n->getNodeId() << std::endl;
             if ( n->getNodeId() == msg.getDestination()  )
             {
@@ -256,8 +252,6 @@ void TSocketServer::routeMessage(const TMessage& msg)
                 }
 
             }
-
-
         }
     }
 
@@ -295,8 +289,6 @@ void TSocketServer::readMessagesFromGw()
 
         for ( auto n : m_lstNodes)
         {
-            
-
             if ( n->getNodeId() == m.getDestination() )
             {
                 std::cout << "  * Destination found! " << std::endl;
@@ -304,10 +296,7 @@ void TSocketServer::readMessagesFromGw()
                 return;
             }
         }
-
-
     }
-
 }
 
 
@@ -315,7 +304,3 @@ SS_STATUS TSocketServer::getStatus() const
 {
     return m_internalStatus;
 }
-
-
-
-
