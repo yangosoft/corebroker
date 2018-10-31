@@ -57,13 +57,11 @@ TMessage TMessage::fromFile(const std::string& path, bool& parsedOk)
     
     if ( true == ok )
     {
-        
         std::stringstream res;
         std::copy(vLines.begin(), vLines.end(), std::ostream_iterator<std::string>(res, "\n"));
         std::string raw = res.str();
         
         m = TMessage::fromRawData(raw,parsedOk);
-        
     }
     
     parsedOk = ok;

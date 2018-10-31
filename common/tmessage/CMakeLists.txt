@@ -52,5 +52,5 @@ install(TARGETS ${LibNodeMessageName}
     
 if( ENABLE_TEST )
     message("Unit test enabled ${CMAKE_CURRENT_SOURCE_DIR}/test/")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt)
+#    include(${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt)
 endif()

@@ -14,13 +14,18 @@
 class TFile
 {
 public:
+    using StringList = std::vector<std::string>;
     TFile(const std::string& filename);
     
     bool open();
     
     static bool fileExists(const std::string& file);
     
-    bool readByLine(std::vector<std::string>& vLines );
+    bool readByLine(StringList& vLines ) const;
+    
+    bool writeLines(const StringList& vLines, bool append = false ) const;
+    bool writeData(const char* buffer, const size_t size, bool append = false ) const;
+    
     
 private:
     std::string m_filename;

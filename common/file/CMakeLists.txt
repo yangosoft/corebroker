@@ -17,7 +17,7 @@ file(GLOB HEADER_FILES
     )
 
 file(GLOB PUBLIC_HEADER_FILES
-    "api/*.h"
+    "inc/*.h"
     )
 
 
