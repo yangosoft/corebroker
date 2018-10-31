@@ -20,11 +20,12 @@ public:
     bool readConfiguration();
 
 
-    virtual ~TConfigMng();
+    virtual ~TConfigMng() = default;
     
-    bool getParamValue(const std::string& key, std::string& value);
-    bool getParamValue(const std::string& key, uint32_t& value);
+    bool getParamValue(const std::string& key, std::string& value) const;
+    bool getParamValue(const std::string& key, uint32_t& value) const;
     
+    TConfigMng(const TConfigMng& orig) = delete;
     
 private:
 
@@ -36,7 +37,7 @@ private:
     Json::Reader m_jsonReader;
     Json::Value m_jsonRep;
 
-    TConfigMng(const TConfigMng& orig);
+    
 
 
 };

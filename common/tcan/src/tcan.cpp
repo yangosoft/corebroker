@@ -7,20 +7,20 @@
 
 #include "tcan.h"
 #include <unistd.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 
 
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
+#include <stdexcept>
 
-TCan::TCan()
+TCan::TCan(): m_opened(false)
 {
-    m_opened = false;
-
+    
 }
 
 bool TCan::openCAN(const std::string& port)
@@ -41,10 +41,10 @@ bool TCan::openCAN(const std::string& port)
 
     addr.can_family = AF_CAN;
     strcpy(ifr.ifr_name, port.c_str());
+    
 
     if (ioctl(m_fdSocket, SIOCGIFINDEX, &ifr) < 0)
     {
-
         return false;
     }
 
@@ -52,9 +52,8 @@ bool TCan::openCAN(const std::string& port)
 
     fcntl(m_fdSocket, F_SETFL, O_NONBLOCK);
 
-    if (bind(m_fdSocket, (struct sockaddr *) &addr, sizeof (addr)) < 0)
+    if (bind(m_fdSocket, reinterpret_cast<struct sockaddr *>( &addr ), sizeof (addr)) < 0)
     {
-
         return false;
     }
 
@@ -62,7 +61,7 @@ bool TCan::openCAN(const std::string& port)
     return true;
 }
 
-bool TCan::sendMessage(const can_frame& message)
+bool TCan::sendMessage(const can_frame& message) const
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     if (false == m_opened)
@@ -74,6 +73,10 @@ bool TCan::sendMessage(const can_frame& message)
     retval = write(m_fdSocket, &message, sizeof (struct can_frame));
     if (retval != sizeof (struct can_frame))
     {
+        /* TODO change to exceptions and avoid returning booleans as error codes.
+        std::logic_error err("Cannot send the CAN message " + message.can_id );
+        throw err;
+        */
         return false;
     }
 
@@ -81,7 +84,7 @@ bool TCan::sendMessage(const can_frame& message)
 
 }
 
-bool TCan::readMessage(can_frame& message)
+bool TCan::readMessage(can_frame& message) const
 {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
 
@@ -95,14 +98,9 @@ bool TCan::readMessage(can_frame& message)
     ssize_t recvbytes = 0;
 
     recvbytes = read(m_fdSocket, &message, sizeof (struct can_frame));
-    if (recvbytes > -1)
+    if (recvbytes <= -1)
     {
-
-
-
-
-    } else
-    {
+        //no data
         return false;
     }
 
@@ -110,7 +108,7 @@ bool TCan::readMessage(can_frame& message)
     return true;
 }
 
-bool TCan::isReady()
+bool TCan::isReady() const
 {
     return m_opened;
 }
@@ -125,72 +123,6 @@ void TCan::closeCAN()
     m_opened = false;
 }
 
-/*int send_port(struct can_frame *frame)
-{
-    int retval;
-   retval = write(m_fdSocket, frame, sizeof(struct can_frame));
-    if (retval != sizeof(struct can_frame))
-    {
-        return (-1);
-    }
-    else
-    {
-        return (0);
-    }
-}
-
-// this is just an example, run in a thread 
-void read_port()
-{
-    struct can_frame frame_rd;
-    int recvbytes = 0;
-
-    read_can_port = 1;
-    while(read_can_port)
-    {
-        struct timeval timeout = {1, 0};
-        fd_set readSet;
-        FD_ZERO(&readSet);
-        FD_SET(soc, &readSet);
-
-        if (select((m_fdSocket + 1), &readSet, NULL, NULL, &timeout) >= 0)
-        {
-            if (!read_can_port)
-            {
-                break;
-            }
-            if (FD_ISSET(m_fdSocket, &readSet))
-            {
-                recvbytes = read(m_fdSocket, &frame_rd, sizeof(struct can_frame));
-                if(recvbytes)
-                {
-                    printf(“dlc = %d, data = %s\n”, frame_rd.can_dlc,frame_rd.data);
-
-                }
-            }
-        }
-
-    }
-
-}
-
-int close_port()
-{
-    close(m_fdSocket);
-    return 0;
-}
-
-
-
- */
-
-
-
-
-TCan::TCan(const TCan& orig)
-{
-
-}
 
 TCan::~TCan()
 {

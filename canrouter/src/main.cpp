@@ -73,13 +73,6 @@ void sendMessageToCAN(TMessage& message)
             }
 
             frame.data[i] = (uint8_t) data;
-
-
-
-
-
-
-
         }
 
 
@@ -89,15 +82,7 @@ void sendMessageToCAN(TMessage& message)
             LOG_ERROR(log) << " * ERROR sending frame!" << std::endl;
             return;
         }
-
-
-
-
-
-
     }
-
-
 }
 
 /**
@@ -118,7 +103,6 @@ void sendFrameToNode(TClientNode& client, can_frame& frame)
     sMessage.writeValue("can_id", frame.can_id);
     for (uint8_t i = 0; i < CAN_MAX_DLEN; i++)
     {
-
         ostringstream ss;
         ss << i;
         std::string key = "data" + ss.str();

@@ -21,6 +21,7 @@
 #include <cstring>
 #include <iostream>
 
+#include <algorithm>
 #include <chrono>
 #include <thread>
 
@@ -161,13 +162,12 @@ void TSocketServer::operator ()()
 
 
 
-    //Rellenamos la estructura
+    
     serv_addr.sin_family 	= AF_INET;
     serv_addr.sin_addr.s_addr 	= htonl(INADDR_ANY); //Importantísimo usar la familia  de funciones hton (hardware to network)
     serv_addr.sin_port 		= htons( m_port );
 
-    //bind "enlaza" la estructura al descriptor de fichero
-    //int status = bind(fd_sck, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+   
     int status = bind(fd_sck, reinterpret_cast<struct sockaddr*>(&serv_addr), sizeof(serv_addr));
     if ( 0 != status )
     {
@@ -176,8 +176,6 @@ void TSocketServer::operator ()()
         return;
     }
 
-
-    //aquí realmente ponemos a escuchar el socket (aceptamos hasta 10 clientes en espera)
     status = listen(fd_sck, 10);
     if ( 0 != status )
     {
@@ -224,7 +222,9 @@ void TSocketServer::routeMessage(const TMessage& msg)
     } else
     {
         bool found = false;
-        for( auto n :  m_lstNodes )
+        
+        
+        std::all_of(m_lstNodes.begin(), m_lstNodes.end(), [msg, &found](auto n)
         {
             std::cout << " MSG " << msg.getDestination() << " vs node " << n->getNodeId() << std::endl;
             if ( n->getNodeId() == msg.getDestination()  )
@@ -232,10 +232,12 @@ void TSocketServer::routeMessage(const TMessage& msg)
                 std::cout << "Found destination node!" << std::endl;
                 found = true;
                 n->EnqueueMsg(msg);
-                break;
+                return false;
             }
-        }
-
+            return true;
+        });
+        
+        
         if ( false == found )
         {
             std::cout << "MESSAGE DESTINATION TO DEFAULT GW..." << std::endl;
@@ -250,15 +252,10 @@ void TSocketServer::routeMessage(const TMessage& msg)
                 {
                     std::cout << " * Message sent! " << std::endl;
                 }
-
             }
         }
     }
 
-    //For each node in node list
-    //  if nodeId == message.destination
-    //       node->enqueue
-  
 }
 
 
@@ -286,16 +283,17 @@ void TSocketServer::readMessagesFromGw()
         //Check if destination from this message is one of
         //m_lstNodes
 
-
-        for ( auto n : m_lstNodes)
+        
+        std::all_of(m_lstNodes.begin(), m_lstNodes.end(), [m](auto n)
         {
             if ( n->getNodeId() == m.getDestination() )
             {
                 std::cout << "  * Destination found! " << std::endl;
                 n->EnqueueMsg(m);
-                return;
+                return false;
             }
-        }
+            return true;
+        });   
     }
 }
 

@@ -21,30 +21,23 @@ public:
     bool openCAN(const std::string& port);
     
     //Blocks until a message is read
-    bool readMessage(can_frame& message);
+    bool readMessage(can_frame& message) const;
     
-    bool sendMessage(const can_frame& message );
+    bool sendMessage(const can_frame& message ) const;
     
-    bool isReady();
+    bool isReady() const;
     
     void closeCAN();
     
     virtual ~TCan();
-    
+    TCan(const TCan& orig) = delete;
     
 private:
-    
-    
-    
     
     std::string m_port;
     int m_fdSocket;
     
     bool m_opened;
-    
-    
-    TCan(const TCan& orig);
-
 };
 
 #endif	/* TCAN_H */

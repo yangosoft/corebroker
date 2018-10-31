@@ -87,7 +87,6 @@ bool TClientNode::login()
         std::cout << "_________________" << std::endl;
         std::cout << msgLogin << std::endl;
         std::cout << "_________________" << std::endl;
-
     }
 
 
@@ -129,7 +128,6 @@ bool TClientNode::login()
             {
                 m_threadStatus = ITHREAD_STATUS::TH_START;
             }
-
         }
 
     } else
